@@ -12,16 +12,18 @@ service KeyManagerGrpcService {
 }
 
 enum TipoKey {
-    CPF = 0;
-    CNPJ = 1;
-    PHONE = 2;
-    EMAIL = 3;
-    RANDOM = 4;
+    UNKNOWN_TIPO_KEY = 0;
+    CPF = 1;
+    CNPJ = 2;
+    PHONE = 3;
+    EMAIL = 4;
+    RANDOM = 5;
 }
 
 enum TipoConta {
-    CACC = 0;
-    SVGS = 1;
+    UNKNOWN_TIPO_CONTA = 0;
+    CONTA_CORRENTE = 1;
+    CONTA_POUPANCA = 2;
 }
 
 message NovaKeyRequest {

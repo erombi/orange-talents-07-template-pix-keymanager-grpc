@@ -42,6 +42,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:testcontainers")
     implementation("io.micronaut:micronaut-validation")
+    implementation("io.micronaut.beanvalidation:micronaut-hibernate-validator:2.0.0")
 
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
 

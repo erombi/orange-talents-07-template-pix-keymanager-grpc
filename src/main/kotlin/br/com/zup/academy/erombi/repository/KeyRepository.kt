@@ -7,4 +7,6 @@ import java.util.*
 
 @Repository
 interface KeyRepository : JpaRepository<Key, UUID> {
+
+    fun existsByKey(key: String): Boolean
 }
