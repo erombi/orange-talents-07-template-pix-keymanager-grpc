@@ -1,9 +1,6 @@
 package br.com.zup.academy.erombi.server
 
-import br.com.zup.academy.erombi.KeyManagerGrpcServiceGrpc
-import br.com.zup.academy.erombi.NovaKeyRequest
-import br.com.zup.academy.erombi.TipoConta
-import br.com.zup.academy.erombi.TipoKey
+import br.com.zup.academy.erombi.*
 import br.com.zup.academy.erombi.repository.KeyRepository
 import io.grpc.ManagedChannel
 import io.grpc.Status
@@ -128,6 +125,79 @@ internal class KeyServerTest(
         Assertions.assertTrue(existente.isEmpty)
     }
 
+    @Test
+    fun  `deve remover Key com sucesso`() {
+        repository.deleteAll()
+
+        val responseCadastro = client.cadastrarKey(
+            NovaKeyRequest.newBuilder()
+                .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
+                .setTipoKey(TipoKey.PHONE)
+                .setKey("+5519999741000")
+                .setTipoConta(TipoConta.CONTA_CORRENTE)
+                .build()
+        )
+
+        Assertions.assertTrue(repository.existsByIdAndTitularUuidCliente(UUID.fromString(responseCadastro.pixId), "ae93a61c-0642-43b3-bb8e-a17072295955"))
+
+        val response = client.removeKey(
+            RemoveKeyRequest.newBuilder()
+                .setIdKey(responseCadastro.pixId)
+                .setIdCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
+                .build()
+        )
+
+        Assertions.assertFalse(repository.existsByIdAndTitularUuidCliente(UUID.fromString(responseCadastro.pixId), "ae93a61c-0642-43b3-bb8e-a17072295955"))
+    }
+
+    @Test
+    fun `deve nao remover Key quando cliente invalido`() {
+        repository.deleteAll()
+
+        val responseCadastro = client.cadastrarKey(
+            NovaKeyRequest.newBuilder()
+                .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
+                .setTipoKey(TipoKey.PHONE)
+                .setKey("+5519999741000")
+                .setTipoConta(TipoConta.CONTA_CORRENTE)
+                .build()
+        )
+
+        Assertions.assertTrue(repository.existsByIdAndTitularUuidCliente(UUID.fromString(responseCadastro.pixId), "ae93a61c-0642-43b3-bb8e-a17072295955"))
+
+        val error = assertThrows<StatusRuntimeException> {
+            client.removeKey(
+                RemoveKeyRequest.newBuilder()
+                    .setIdKey(responseCadastro.pixId)
+                    .setIdCliente("-0642-43b3-bb8e-a17072295955")
+                    .build()
+            )
+        }
+
+        /* Como a validação da key inclui o id do cliente não tem como testar unicamente essa validação */
+        with(error) {
+            Assertions.assertEquals(Status.NOT_FOUND.code, status.code)
+        }
+    }
+
+    @Test
+    fun `deve nao remover Key quando key inexistente`() {
+        repository.deleteAll()
+
+        val error = assertThrows<StatusRuntimeException> {
+            client.removeKey(
+                RemoveKeyRequest.newBuilder()
+                    .setIdKey(UUID.randomUUID().toString())
+                    .setIdCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
+                    .build()
+            )
+        }
+
+        with(error) {
+            Assertions.assertEquals(Status.NOT_FOUND.code, status.code)
+            Assertions.assertEquals("NOT_FOUND: Key não encontrada !", status.description)
+        }
+    }
 }
 
 @Factory

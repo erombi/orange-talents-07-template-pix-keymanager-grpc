@@ -28,9 +28,9 @@ class ValidaKeyValidator()
                          annotationMetadata: AnnotationValue<ValidaKey>,
                          context: ConstraintValidatorContext): Boolean {
 
-        return value?.key?.let { key ->
-            value.tipoKey?.validaKey(key)
-        } ?: true
+        return value?.key!!.let { key ->
+            value.tipoKey?.validaKey(key) ?: true
+        }
 
     }
 

@@ -1,14 +1,12 @@
 package br.com.zup.academy.erombi.server
 
-import br.com.zup.academy.erombi.KeyManagerGrpcServiceGrpc
-import br.com.zup.academy.erombi.NovaKeyRequest
-import br.com.zup.academy.erombi.NovaKeyResponse
-import br.com.zup.academy.erombi.TipoKey
+import br.com.zup.academy.erombi.*
 import br.com.zup.academy.erombi.client.ErpItauClient
 import br.com.zup.academy.erombi.model.Key
 import br.com.zup.academy.erombi.repository.KeyRepository
 import br.com.zup.academy.erombi.service.KeyService
 import br.com.zup.academy.erombi.service.form.NovaKeyForm
+import br.com.zup.academy.erombi.service.form.RemoveKeyForm
 import com.google.rpc.ErrorDetailsProto
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -20,6 +18,7 @@ import io.micronaut.validation.validator.Validator
 import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.lang.RuntimeException
 import java.util.regex.Pattern
 import javax.validation.ConstraintViolationException
 
@@ -34,8 +33,8 @@ class KeyServer(
     override fun cadastrarKey(request: NovaKeyRequest?, responseObserver: StreamObserver<NovaKeyResponse>?) {
 
         try {
-            val response = request?.let {
-                val form = with(request) {
+            val response = request?.let { req ->
+                val form = with(req) {
                     NovaKeyForm(
                         uuidCliente,
                         tipoKey,
@@ -57,6 +56,26 @@ class KeyServer(
                                                 .withDescription(e.constraintViolations.first().message)
                                                 .asRuntimeException())
         }
+    }
 
+    override fun removeKey(request: RemoveKeyRequest?, responseObserver: StreamObserver<RemoveKeyResponse>?) {
+        try {
+            val response = request?.let { req ->
+                val form = with(req) {
+                    RemoveKeyForm(
+                        req.idKey,
+                        req.idCliente
+                    )
+                }
+
+                service.validaERemove(form)
+            }
+
+            responseObserver?.onNext(response)
+            responseObserver?.onCompleted()
+
+        } catch (e: StatusRuntimeException) {
+            responseObserver?.onError(e.status.withDescription(e.message).asRuntimeException())
+        }
     }
 }

@@ -9,4 +9,7 @@ import java.util.*
 interface KeyRepository : JpaRepository<Key, UUID> {
 
     fun existsByKey(key: String): Boolean
+    fun existsByIdAndTitularUuidCliente(id: UUID, uuidCliente: String): Boolean
+
+    fun deleteByIdAndTitularUuidCliente(id: UUID, uuidCliente: String)
 }

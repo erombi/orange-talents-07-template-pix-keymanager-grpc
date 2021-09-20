@@ -9,6 +9,8 @@ service KeyManagerGrpcService {
 
   rpc cadastrarKey(NovaKeyRequest) returns (NovaKeyResponse) {}
 
+  rpc removeKey(RemoveKeyRequest) returns (RemoveKeyResponse) {}
+
 }
 
 enum TipoKey {
@@ -37,3 +39,11 @@ message NovaKeyRequest {
 message NovaKeyResponse {
   string pixId = 1;
 }
+
+message RemoveKeyRequest {
+  string idKey = 1;
+  string idCliente = 2;
+}
+
+message RemoveKeyResponse {}
+
