@@ -16,6 +16,6 @@ interface ErpItauClient {
     fun pesquisaCliente(@PathVariable clienteId: String) : ClienteErpItauResponse
 
     @Get("/clientes/{clienteId}/contas?tipo={tipoConta}")
-    fun pesquisaContasPorCliente(@QueryValue tipoConta: String, @PathVariable clienteId: String) : ContaClienteErpItauResponse
+    fun pesquisaContasPorCliente(@QueryValue tipoConta: String, @PathVariable clienteId: String) : ContaClienteErpItauResponse?
 
 }

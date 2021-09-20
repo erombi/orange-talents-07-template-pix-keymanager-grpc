@@ -21,7 +21,7 @@ data class NovaKeyForm(
 
     val tipoKey: TipoKey?,
 
-    @field:Max(77)
+    @field:Size(max = 77)
     @field:UniqueKey
     @field:NotNull
     val key: String?,

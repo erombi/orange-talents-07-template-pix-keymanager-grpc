@@ -54,7 +54,7 @@ class KeyServer(
                                                 .asRuntimeException())
         } catch (e: ConstraintViolationException) {
             responseObserver?.onError(Status.FAILED_PRECONDITION
-                                                .withDescription(e.message)
+                                                .withDescription(e.constraintViolations.first().message)
                                                 .asRuntimeException())
         }
 

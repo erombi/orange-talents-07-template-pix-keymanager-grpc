@@ -22,7 +22,6 @@ annotation class ValidaKey (
 
 @Singleton
 class ValidaKeyValidator()
-
     : ConstraintValidator<ValidaKey, NovaKeyForm> {
 
     override fun isValid(value: NovaKeyForm?,

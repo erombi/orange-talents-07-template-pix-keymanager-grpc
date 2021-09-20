@@ -31,38 +31,37 @@ class KeyService(
         try {
             val contaClienteItau = client.pesquisaContasPorCliente(form.tipoConta!!.name, form.uuidCliente!!)
 
-            val key = Key(
-                form.tipoKey!!,
-                form.key!!,
-                form.tipoConta,
-                Instituicao(
-                    contaClienteItau.instituicao.nome,
-                    contaClienteItau.instituicao.ispb
-                ),
-                contaClienteItau.agencia,
-                contaClienteItau.numero,
-                Titular(
-                    contaClienteItau.titular.id,
-                    contaClienteItau.titular.nome
+            contaClienteItau?.let {
+                val key = Key(
+                    form.tipoKey!!,
+                    form.key!!,
+                    form.tipoConta,
+                    Instituicao(
+                        contaClienteItau.instituicao.nome,
+                        contaClienteItau.instituicao.ispb
+                    ),
+                    contaClienteItau.agencia,
+                    contaClienteItau.numero,
+                    Titular(
+                        contaClienteItau.titular.id,
+                        contaClienteItau.titular.nome
+                    )
                 )
+
+                repository.save(key)
+
+                return NovaKeyResponse.newBuilder()
+                    .setPixId(key.id.toString())
+                    .build()
+            } ?: throw StatusRuntimeException(
+                Status.INVALID_ARGUMENT
+                        .withDescription("Conta não encontrada !")
             )
 
-            repository.save(key)
-
-            return NovaKeyResponse.newBuilder()
-                        .setPixId(key.id.toString())
-                        .build()
 
         } catch (e : HttpClientResponseException) {
-            if (e.status == HttpStatus.BAD_REQUEST) {
-                logger.warn("Erro na consulta de conta, não encontrada")
-                throw StatusRuntimeException(Status.INVALID_ARGUMENT.withDescription("Conta não encontrada !"))
-            }
-            else {
-                logger.error("Ocorreu um erro inesperado na consulta de conta")
-                throw StatusRuntimeException(Status.INTERNAL.withDescription("Ocorreu um erro inesperado !"))
-            }
-
+            logger.error("Ocorreu um erro inesperado na consulta de conta")
+            throw StatusRuntimeException(Status.INTERNAL.withDescription("Ocorreu um erro inesperado !"))
         }
 
     }
