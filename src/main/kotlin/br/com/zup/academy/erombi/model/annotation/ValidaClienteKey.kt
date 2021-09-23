@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [ValidaClienteKeyValidator::class])
 annotation class ValidaClienteKey(
-    val message: String = "Key não encontrada !",
+    val message: String = "Key não encontrada ou em formato inválido !",
     val groups: Array<KClass<Any>> = [],
     val payload: Array<KClass<Any>> = [],
 )
@@ -33,7 +33,7 @@ class ValidaClienteKeyValidator(
     ): Boolean {
 
         return value?.let { form ->
-            repository.existsByIdAndTitularUuidCliente(UUID.fromString(form.idKey), form.idCliente)
+            repository.existsByIdAndTitularUuidCliente(UUID.fromString(form.idKey), UUID.fromString(form.idCliente))
         } ?: false
 
     }

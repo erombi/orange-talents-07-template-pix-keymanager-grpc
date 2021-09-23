@@ -33,18 +33,11 @@ class ValidaClienteValidator(
     override fun isValid(value: String?,
                          annotationMetadata: AnnotationValue<ValidaCliente>,
                          context: ConstraintValidatorContext): Boolean {
-        return try {
-            value?.let { uuidCliente ->
+
+            return value?.let { uuidCliente ->
                 client.pesquisaCliente(uuidCliente)
-            }
-
-            true
-        } catch (e : HttpClientResponseException) {
-            if (e.status == HttpStatus.BAD_REQUEST) logger.warn("Erro na consulta de cliente, não encontrado")
-            else logger.warn("Erro inesperado na consulta de cliente")
-
-            false
-        }
+                true
+            } ?: false
     }
 
 }

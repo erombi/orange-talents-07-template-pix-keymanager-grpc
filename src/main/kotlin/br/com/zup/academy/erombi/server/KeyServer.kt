@@ -12,6 +12,7 @@ import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
 import io.micronaut.validation.validator.Validator
@@ -19,6 +20,7 @@ import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
+import java.net.ConnectException
 import java.util.regex.Pattern
 import javax.validation.ConstraintViolationException
 
@@ -39,7 +41,7 @@ class KeyServer(
                         uuidCliente,
                         tipoKey,
                         key,
-                        tipoConta
+                        tipoConta,
                     )
                 }
                 service.validaESalva(form)
@@ -53,8 +55,18 @@ class KeyServer(
                                                 .asRuntimeException())
         } catch (e: ConstraintViolationException) {
             responseObserver?.onError(Status.FAILED_PRECONDITION
-                                                .withDescription(e.constraintViolations.first().message)
+                                                .withDescription(e.message)
                                                 .asRuntimeException())
+        } catch (e: Exception) {
+            if (e.cause is HttpClientException){
+                responseObserver?.onError(Status.UNAVAILABLE
+                        .withDescription("Erro ao conectar à serviço externo !")
+                    .asRuntimeException())
+            }
+
+            responseObserver?.onError(Status.INTERNAL
+                .withDescription("Erro interno inesperado !")
+                .asRuntimeException())
         }
     }
 
@@ -76,6 +88,17 @@ class KeyServer(
 
         } catch (e: StatusRuntimeException) {
             responseObserver?.onError(e.status.withDescription(e.message).asRuntimeException())
+
+        } catch (e: Exception) {
+            if (e.cause is HttpClientException){
+                responseObserver?.onError(Status.UNAVAILABLE
+                    .withDescription("Erro ao conectar à serviço externo !")
+                    .asRuntimeException())
+            }
+
+            responseObserver?.onError(Status.INTERNAL
+                .withDescription("Erro interno inesperado !")
+                .asRuntimeException())
         }
     }
 }
