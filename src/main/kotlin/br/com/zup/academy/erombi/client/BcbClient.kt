@@ -3,12 +3,11 @@ package br.com.zup.academy.erombi.client
 import br.com.zup.academy.erombi.client.request.CreatePixKeyRequest
 import br.com.zup.academy.erombi.client.request.DeletePixKeyRequest
 import br.com.zup.academy.erombi.client.response.CreatePixKeyResponse
+import br.com.zup.academy.erombi.client.response.PixKeyDetailsResponse
 import io.micronaut.context.annotation.Primary
+import io.micronaut.http.HttpResponse
 import io.micronaut.http.MediaType
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Delete
-import io.micronaut.http.annotation.PathVariable
-import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.*
 import io.micronaut.http.client.annotation.Client
 import org.hibernate.annotations.FetchProfile
 
@@ -20,4 +19,7 @@ interface BcbClient {
 
     @Delete("/keys/{key}", produces = [MediaType.APPLICATION_XML], consumes = [MediaType.APPLICATION_XML])
     fun deletaDoBancoCentral(@PathVariable key: String, @Body request: DeletePixKeyRequest)
+
+    @Get("/keys/{key}", produces = [MediaType.APPLICATION_XML], consumes = [MediaType.APPLICATION_XML])
+    fun consultaKey(@PathVariable key: String): HttpResponse<PixKeyDetailsResponse>
 }

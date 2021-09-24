@@ -1,6 +1,6 @@
 package br.com.zup.academy.erombi.model.annotation
 
-import br.com.zup.academy.erombi.NovaKeyRequest
+import br.com.zup.academy.erombi.TipoKey
 import br.com.zup.academy.erombi.service.form.NovaKeyForm
 import io.micronaut.core.annotation.AnnotationValue
 import io.micronaut.validation.validator.constraints.ConstraintValidator
@@ -36,22 +36,22 @@ class ValidaKeyValidator()
 
 }
 
-fun NovaKeyRequest.TipoKey.validaKey(key: String): Boolean {
+fun TipoKey.validaKey(key: String): Boolean {
     when (this){
 
-        NovaKeyRequest.TipoKey.RANDOM -> {
+        TipoKey.RANDOM -> {
             return key.isEmpty()
         }
-        NovaKeyRequest.TipoKey.CPF -> {
+        TipoKey.CPF -> {
             return key.matches("^[0-9]{11}\$".toRegex())
         }
-        NovaKeyRequest.TipoKey.CNPJ -> {
+        TipoKey.CNPJ -> {
             return key.matches("^\\d{2}\\.\\d{3}\\.\\d{3}\\/\\d{4}\\-\\d{2}\$".toRegex())
         }
-        NovaKeyRequest.TipoKey.PHONE -> {
+        TipoKey.PHONE -> {
             return key.matches("^\\+[1-9][0-9]\\d{1,14}\$".toRegex())
         }
-        NovaKeyRequest.TipoKey.EMAIL -> {
+        TipoKey.EMAIL -> {
             return key.matches("[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?".toRegex())
         }
 

@@ -1,7 +1,7 @@
 package br.com.zup.academy.erombi.service.form
 
-import br.com.zup.academy.erombi.NovaKeyRequest
 import br.com.zup.academy.erombi.TipoConta
+import br.com.zup.academy.erombi.TipoKey
 import br.com.zup.academy.erombi.model.annotation.UniqueKey
 import br.com.zup.academy.erombi.model.annotation.ValidaCliente
 import br.com.zup.academy.erombi.model.annotation.ValidaKey
@@ -18,7 +18,7 @@ data class NovaKeyForm(
     @field:NotBlank
     val uuidCliente: String?,
 
-    val tipoKey: NovaKeyRequest.TipoKey?,
+    val tipoKey: TipoKey?,
 
     @field:Size(max = 77)
     @field:UniqueKey

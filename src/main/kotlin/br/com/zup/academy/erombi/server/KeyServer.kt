@@ -1,7 +1,9 @@
 package br.com.zup.academy.erombi.server
 
 import br.com.zup.academy.erombi.*
+import br.com.zup.academy.erombi.client.BcbClient
 import br.com.zup.academy.erombi.client.ErpItauClient
+import br.com.zup.academy.erombi.exception.NotFoundException
 import br.com.zup.academy.erombi.model.Key
 import br.com.zup.academy.erombi.repository.KeyRepository
 import br.com.zup.academy.erombi.service.KeyService
@@ -27,7 +29,10 @@ import javax.validation.ConstraintViolationException
 @Validated
 @Singleton
 class KeyServer(
-    val service: KeyService
+    val service: KeyService,
+    val validator: Validator,
+    val repository: KeyRepository,
+    val bcbClient: BcbClient
 ) : KeyManagerGrpcServiceGrpc.KeyManagerGrpcServiceImplBase() {
 
     val logger: Logger = LoggerFactory.getLogger(KeyServer::class.java)
@@ -100,5 +105,20 @@ class KeyServer(
                 .withDescription("Erro interno inesperado !")
                 .asRuntimeException())
         }
+    }
+
+    override fun consultaKey(request: ConsultaKeyRequest, responseObserver: StreamObserver<ConsultaKeyResponse>?) {
+        try {
+            val filtro = request.toModel(validator)
+            val response = filtro.filtra(repository, bcbClient)
+
+            responseObserver?.onNext(response)
+            responseObserver?.onCompleted()
+        } catch (e: NotFoundException) {
+            responseObserver?.onError(Status.NOT_FOUND.asRuntimeException())
+        } catch (e: Exception) {
+            responseObserver?.onError(Status.INVALID_ARGUMENT.withDescription(e.message).asRuntimeException())
+        }
+
     }
 }

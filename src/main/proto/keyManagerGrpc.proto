@@ -5,15 +5,17 @@ option java_package = "br.com.zup.academy.erombi";
 
 package br.com.zup.academy.erombi;
 
+import "google/protobuf/timestamp.proto";
+
 service KeyManagerGrpcService {
 
   rpc cadastrarKey(NovaKeyRequest) returns (NovaKeyResponse) {}
 
   rpc removeKey(RemoveKeyRequest) returns (RemoveKeyResponse) {}
 
+  rpc consultaKey(ConsultaKeyRequest) returns (ConsultaKeyResponse) {}
+
 }
-
-
 
 enum TipoConta {
     UNKNOWN_TIPO_CONTA = 0;
@@ -21,14 +23,16 @@ enum TipoConta {
     SVGS = 2;
 }
 
+enum TipoKey {
+  RANDOM = 0;
+  CPF = 1;
+  CNPJ = 2;
+  PHONE = 3;
+  EMAIL = 4;
+}
+
 message NovaKeyRequest {
-  enum TipoKey {
-    RANDOM = 0;
-    CPF = 1;
-    CNPJ = 2;
-    PHONE = 3;
-    EMAIL = 4;
-  }
+
 
   string uuidCliente = 1;
   TipoKey tipoKey = 2;
@@ -48,3 +52,38 @@ message RemoveKeyRequest {
 
 message RemoveKeyResponse {}
 
+message ConsultaKeyRequest {
+  message FiltroPorPix {
+    string idKey = 1;
+    string idCliente = 2;
+  }
+
+  oneof filtro {
+    string key = 1;
+    FiltroPorPix pix = 2;
+  }
+}
+
+message ConsultaKeyResponse {
+
+  message ChavePix {
+
+    message ContaInfo {
+      TipoConta tipo = 1;
+      string instituicao = 2;
+      string nomeTitular = 3;
+      string cpfTitular = 4;
+      string agencia = 5;
+      string numeroConta = 6;
+    }
+
+    TipoKey tipoKey = 1;
+    string key = 2;
+    ContaInfo conta = 3;
+    google.protobuf.Timestamp criadaEm = 4;
+  }
+
+  string clienteId = 1;
+  string pixId = 2;
+  ChavePix chave = 3;
+}

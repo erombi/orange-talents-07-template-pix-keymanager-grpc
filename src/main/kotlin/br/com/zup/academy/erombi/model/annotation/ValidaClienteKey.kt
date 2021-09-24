@@ -33,7 +33,7 @@ class ValidaClienteKeyValidator(
     ): Boolean {
 
         return value?.let { form ->
-            repository.existsByIdAndTitularUuidCliente(UUID.fromString(form.idKey), UUID.fromString(form.idCliente))
+            repository.existsByIdAndTitularUuidCliente(UUID.fromString(form.idKey), form.idCliente)
         } ?: false
 
     }

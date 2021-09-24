@@ -51,9 +51,9 @@ class KeyService(
                         form.tipoKey!!.name,
                         form.key!!,
                         BankAccountRequest(
-                            0,
+                            100000,
                             "0001",
-                            0,
+                            100000,
                             form.tipoConta.name
                         ),
                         OwnerRequest(
@@ -76,8 +76,9 @@ class KeyService(
                     contaClienteItau.agencia,
                     contaClienteItau.numero,
                     Titular(
-                        UUID.fromString(contaClienteItau.titular.id),
-                        contaClienteItau.titular.nome
+                        contaClienteItau.titular.id,
+                        contaClienteItau.titular.nome,
+                        contaClienteItau.titular.cpf
                     )
                 )
 
@@ -132,7 +133,7 @@ class KeyService(
                 )
             )
 
-            repository.deleteByIdAndTitularUuidCliente(UUID.fromString(form.idKey), UUID.fromString(form.idCliente))
+            repository.deleteByIdAndTitularUuidCliente(UUID.fromString(form.idKey), form.idCliente)
             return RemoveKeyResponse.newBuilder().build()
 
         } catch (e: HttpClientResponseException) {

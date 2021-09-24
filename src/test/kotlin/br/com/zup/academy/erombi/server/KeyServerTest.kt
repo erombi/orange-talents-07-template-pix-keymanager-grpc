@@ -1,9 +1,6 @@
 package br.com.zup.academy.erombi.server
 
-import br.com.zup.academy.erombi.KeyManagerGrpcServiceGrpc
-import br.com.zup.academy.erombi.NovaKeyRequest
-import br.com.zup.academy.erombi.RemoveKeyRequest
-import br.com.zup.academy.erombi.TipoConta
+import br.com.zup.academy.erombi.*
 import br.com.zup.academy.erombi.client.BcbClient
 import br.com.zup.academy.erombi.client.ErpItauClient
 import br.com.zup.academy.erombi.client.request.BankAccountRequest
@@ -49,9 +46,6 @@ internal class KeyServerTest(
     @Inject
     lateinit var clientBcb: BcbClient
 
-    var idKey = UUID.randomUUID()
-    var idCliente = UUID.randomUUID()
-
     @BeforeEach
     fun setUp() {
         `when`(clientErpItau.pesquisaContasPorCliente(TipoConta.CACC.toPorExtenso(), "0642-43b3-bb8e-a17072295955"))
@@ -93,12 +87,12 @@ internal class KeyServerTest(
 
         `when`(clientBcb.cadastraNoBancoCentral(
             CreatePixKeyRequest(
-                NovaKeyRequest.TipoKey.PHONE.name,
+                TipoKey.PHONE.name,
                 "+5519999741000",
                 BankAccountRequest(
-                    0,
+                    100000,
                     "0001",
-                    0,
+                    100000,
                     TipoConta.CACC.name
                 ),
                 OwnerRequest(
@@ -109,12 +103,12 @@ internal class KeyServerTest(
             )
         )).thenReturn(
             CreatePixKeyResponse(
-                NovaKeyRequest.TipoKey.PHONE,
+                TipoKey.PHONE,
                 "+5519999741000",
                 BankAccountRequest(
-                    0,
+                    100000,
                     "0001",
-                    0,
+                    100000,
                     TipoConta.CACC.name
                 ),
                 OwnerRequest(
@@ -135,7 +129,7 @@ internal class KeyServerTest(
         val response = client.cadastrarKey(
             NovaKeyRequest.newBuilder()
                 .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
-                .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                .setTipoKey(TipoKey.PHONE)
                 .setKey("+5519999741000")
                 .setTipoConta(TipoConta.CACC)
                 .build()
@@ -161,7 +155,7 @@ internal class KeyServerTest(
             client.cadastrarKey(
                 NovaKeyRequest.newBuilder()
                     .setUuidCliente("0642-43b3-bb8e-a17072295955")
-                    .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                    .setTipoKey(TipoKey.PHONE)
                     .setKey("+5519999742222")
                     .setTipoConta(TipoConta.CACC)
                     .build()
@@ -180,7 +174,7 @@ internal class KeyServerTest(
         client.cadastrarKey(
             NovaKeyRequest.newBuilder()
                 .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
-                .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                .setTipoKey(TipoKey.PHONE)
                 .setKey("+5519999741000")
                 .setTipoConta(TipoConta.CACC)
                 .build()
@@ -190,7 +184,7 @@ internal class KeyServerTest(
             client.cadastrarKey(
                 NovaKeyRequest.newBuilder()
                     .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
-                    .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                    .setTipoKey(TipoKey.PHONE)
                     .setKey("+5519999741000")
                     .setTipoConta(TipoConta.CACC)
                     .build()
@@ -215,7 +209,7 @@ internal class KeyServerTest(
             client.cadastrarKey(
                 NovaKeyRequest.newBuilder()
                     .setUuidCliente("c56dfef4-7901-44fb-84e2-a2cefb157890")
-                    .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                    .setTipoKey(TipoKey.PHONE)
                     .setKey("+5519999741000")
                     .setTipoConta(TipoConta.SVGS)
                     .build()
@@ -239,22 +233,22 @@ internal class KeyServerTest(
         val responseCadastro = client.cadastrarKey(
             NovaKeyRequest.newBuilder()
                 .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
-                .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                .setTipoKey(TipoKey.PHONE)
                 .setKey("+5519999741000")
                 .setTipoConta(TipoConta.CACC)
                 .build()
         )
 
-        Assertions.assertTrue(repository.existsByIdAndTitularUuidCliente(UUID.fromString(responseCadastro.pixId), UUID.fromString("ae93a61c-0642-43b3-bb8e-a17072295955")))
+        Assertions.assertTrue(repository.existsByIdAndTitularUuidCliente(UUID.fromString(responseCadastro.pixId), "ae93a61c-0642-43b3-bb8e-a17072295955"))
 
-        val response = client.removeKey(
+        client.removeKey(
             RemoveKeyRequest.newBuilder()
                 .setIdKey(responseCadastro.pixId)
                 .setIdCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
                 .build()
         )
 
-        Assertions.assertFalse(repository.existsByIdAndTitularUuidCliente(UUID.fromString(responseCadastro.pixId), UUID.fromString("ae93a61c-0642-43b3-bb8e-a17072295955")))
+        Assertions.assertFalse(repository.existsByIdAndTitularUuidCliente(UUID.fromString(responseCadastro.pixId), "ae93a61c-0642-43b3-bb8e-a17072295955"))
     }
 
     @Test
@@ -271,7 +265,7 @@ internal class KeyServerTest(
         val responseCadastro = client.cadastrarKey(
             NovaKeyRequest.newBuilder()
                 .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
-                .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                .setTipoKey(TipoKey.PHONE)
                 .setKey("+5519999741000")
                 .setTipoConta(TipoConta.CACC)
                 .build()
@@ -326,7 +320,7 @@ internal class KeyServerTest(
             client.cadastrarKey(
                 NovaKeyRequest.newBuilder()
                     .setUuidCliente(randomUUID.toString())
-                    .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                    .setTipoKey(TipoKey.PHONE)
                     .setKey("+5519999741111")
                     .setTipoConta(TipoConta.CACC)
                     .build()
@@ -352,7 +346,7 @@ internal class KeyServerTest(
             client.cadastrarKey(
                 NovaKeyRequest.newBuilder()
                     .setUuidCliente(randomUUID.toString())
-                    .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                    .setTipoKey(TipoKey.PHONE)
                     .setKey("+5519999741000")
                     .setTipoConta(TipoConta.CACC)
                     .build()
@@ -370,7 +364,7 @@ internal class KeyServerTest(
         val response = client.cadastrarKey(
             NovaKeyRequest.newBuilder()
                 .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
-                .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                .setTipoKey(TipoKey.PHONE)
                 .setKey("+5519999741000")
                 .setTipoConta(TipoConta.CACC)
                 .build()
@@ -380,7 +374,7 @@ internal class KeyServerTest(
             "+5519999741000",
             DeletePixKeyRequest(
                 "+5519999741000",
-                0
+                100000
             )
         ))
             .thenThrow(
@@ -407,7 +401,7 @@ internal class KeyServerTest(
         val response = client.cadastrarKey(
             NovaKeyRequest.newBuilder()
                 .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
-                .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                .setTipoKey(TipoKey.PHONE)
                 .setKey("+5519999741000")
                 .setTipoConta(TipoConta.CACC)
                 .build()
@@ -417,7 +411,7 @@ internal class KeyServerTest(
             "+5519999741000",
             DeletePixKeyRequest(
                 "+5519999741000",
-                0
+                100000
             )
         ))
             .thenThrow(
@@ -444,7 +438,7 @@ internal class KeyServerTest(
         val response = client.cadastrarKey(
             NovaKeyRequest.newBuilder()
                 .setUuidCliente("ae93a61c-0642-43b3-bb8e-a17072295955")
-                .setTipoKey(NovaKeyRequest.TipoKey.PHONE)
+                .setTipoKey(TipoKey.PHONE)
                 .setKey("+5519999741000")
                 .setTipoConta(TipoConta.CACC)
                 .build()
@@ -454,7 +448,7 @@ internal class KeyServerTest(
             "+5519999741000",
             DeletePixKeyRequest(
                 "+5519999741000",
-                0
+                100000
             )
         ))
             .thenThrow(HttpClientResponseException::class.java)

@@ -1,8 +1,7 @@
 package br.com.zup.academy.erombi.model
 
-import br.com.zup.academy.erombi.NovaKeyRequest
 import br.com.zup.academy.erombi.TipoConta
-import br.com.zup.academy.erombi.model.annotation.ValidaKey
+import br.com.zup.academy.erombi.TipoKey
 import java.util.*
 import javax.persistence.Column
 import javax.persistence.Embedded
@@ -13,7 +12,7 @@ import javax.validation.constraints.NotNull
 
 @Entity
 class Key(
-    tipoKey: NovaKeyRequest.TipoKey,
+    tipoKey: TipoKey,
     key: String,
     tipoConta: TipoConta,
     instituicao : Instituicao,
