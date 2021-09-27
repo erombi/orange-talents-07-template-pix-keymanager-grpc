@@ -2,28 +2,26 @@ package br.com.zup.academy.erombi.server
 
 import br.com.zup.academy.erombi.*
 import br.com.zup.academy.erombi.client.BcbClient
-import br.com.zup.academy.erombi.client.ErpItauClient
+import br.com.zup.academy.erombi.compartilhado.toModel
 import br.com.zup.academy.erombi.exception.NotFoundException
-import br.com.zup.academy.erombi.model.Key
 import br.com.zup.academy.erombi.repository.KeyRepository
 import br.com.zup.academy.erombi.service.KeyService
+import br.com.zup.academy.erombi.service.form.ConsultaKeyPorClienteForm
 import br.com.zup.academy.erombi.service.form.NovaKeyForm
 import br.com.zup.academy.erombi.service.form.RemoveKeyForm
-import com.google.rpc.ErrorDetailsProto
+import com.google.protobuf.Any
+import com.google.rpc.BadRequest
+import com.google.rpc.Code
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import io.grpc.protobuf.StatusProto
 import io.grpc.stub.StreamObserver
-import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.exceptions.HttpClientException
-import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.micronaut.validation.Validated
 import io.micronaut.validation.validator.Validator
 import jakarta.inject.Singleton
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.RuntimeException
-import java.net.ConnectException
-import java.util.regex.Pattern
 import javax.validation.ConstraintViolationException
 
 @Validated
@@ -115,10 +113,54 @@ class KeyServer(
             responseObserver?.onNext(response)
             responseObserver?.onCompleted()
         } catch (e: NotFoundException) {
-            responseObserver?.onError(Status.NOT_FOUND.asRuntimeException())
+            responseObserver?.onError(Status.NOT_FOUND.withDescription(e.message).asRuntimeException())
         } catch (e: Exception) {
             responseObserver?.onError(Status.INVALID_ARGUMENT.withDescription(e.message).asRuntimeException())
         }
 
+    }
+
+    override fun consultaKeysPorCliente(
+        request: ConsultaKeyPorClienteRequest,
+        responseObserver: StreamObserver<ConsultaKeyPorClienteResponse>?
+    ) {
+        try {
+            val keys = service.validaEConsultaPorCliente(
+                ConsultaKeyPorClienteForm(request.idCliente)
+            )
+
+            responseObserver?.onNext(
+                ConsultaKeyPorClienteResponse.newBuilder()
+                    .addAllKeys(keys)
+                    .build()
+            )
+            responseObserver?.onCompleted()
+        } catch (e: ConstraintViolationException) {
+            val errors = mapeiaErrors(e)
+
+            val error = com.google.rpc.Status.newBuilder()
+                .setCode(Code.INVALID_ARGUMENT.number)
+                .setMessage("Erros no formulario")
+                .addDetails(
+                    Any.pack(
+                        BadRequest.newBuilder()
+                            .addAllFieldViolations(errors)
+                            .build()
+                    )
+                )
+                .build()
+
+            responseObserver?.onError(StatusProto.toStatusRuntimeException(error))
+        }
+
+    }
+
+    private fun mapeiaErrors(e: ConstraintViolationException): List<BadRequest.FieldViolation> {
+        val errors = e.constraintViolations.map {
+            BadRequest.FieldViolation.newBuilder()
+                .setField(it.message)
+                .build()
+        }
+        return errors
     }
 }

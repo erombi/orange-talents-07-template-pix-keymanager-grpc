@@ -203,5 +203,26 @@ internal class ConsultaKeyServerTest(
             Assertions.assertEquals(Status.INVALID_ARGUMENT.code, status.code)
         }
     }
+
+    @Test
+    fun `deve consultar por Pix e lancar INVALID_ARGUMENT devido key vazia`() {
+
+        val error = assertThrows<StatusRuntimeException> {
+            grpcClient.consultaKey(
+                ConsultaKeyRequest.newBuilder()
+                    .setPix(
+                        ConsultaKeyRequest.FiltroPorPix.newBuilder()
+                            .setIdKey("")
+                            .setIdCliente("invalido")
+                            .build()
+                    )
+                    .build()
+            )
+        }
+
+        with(error) {
+            Assertions.assertEquals(Status.INVALID_ARGUMENT.code, status.code)
+        }
+    }
 }
 

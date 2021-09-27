@@ -1,5 +1,6 @@
 package br.com.zup.academy.erombi.service
 
+import br.com.zup.academy.erombi.ConsultaKeyPorClienteResponse
 import br.com.zup.academy.erombi.NovaKeyResponse
 import br.com.zup.academy.erombi.RemoveKeyResponse
 import br.com.zup.academy.erombi.TipoConta
@@ -14,8 +15,10 @@ import br.com.zup.academy.erombi.model.Key
 import br.com.zup.academy.erombi.model.TipoPessoa
 import br.com.zup.academy.erombi.model.Titular
 import br.com.zup.academy.erombi.repository.KeyRepository
+import br.com.zup.academy.erombi.service.form.ConsultaKeyPorClienteForm
 import br.com.zup.academy.erombi.service.form.NovaKeyForm
 import br.com.zup.academy.erombi.service.form.RemoveKeyForm
+import com.google.protobuf.Timestamp
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.micronaut.http.HttpStatus
@@ -139,6 +142,29 @@ class KeyService(
         } catch (e: HttpClientResponseException) {
             logger.warn("Não foi possivel deletar key do banco central")
             throw StatusRuntimeException(Status.INVALID_ARGUMENT.withDescription("Não foi possível deletar a chave !"))
+        }
+    }
+
+    fun validaEConsultaPorCliente(@Valid form: ConsultaKeyPorClienteForm): List<ConsultaKeyPorClienteResponse.KeyDescription> {
+        val keys = repository.findAllByTitularUuidCliente(form.idCliente)
+
+        return mapeiaParaConsultaResponse(keys)
+    }
+
+    private fun mapeiaParaConsultaResponse(keys: Set<Key>): List<ConsultaKeyPorClienteResponse.KeyDescription> {
+        return keys.map { key ->
+            ConsultaKeyPorClienteResponse.KeyDescription.newBuilder()
+                .setClienteId(key.titular.uuidCliente)
+                .setPixId(key.id.toString())
+                .setTipoKey(key.tipoKey)
+                .setTipoConta(key.tipoConta)
+                .setCriadoEm(
+                    Timestamp.newBuilder()
+                        .setNanos(key.criadoEm.nano)
+                        .setSeconds(key.criadoEm.second.toLong())
+                        .build()
+                )
+                .build()
         }
     }
 

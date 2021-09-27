@@ -15,6 +15,8 @@ service KeyManagerGrpcService {
 
   rpc consultaKey(ConsultaKeyRequest) returns (ConsultaKeyResponse) {}
 
+  rpc consultaKeysPorCliente(ConsultaKeyPorClienteRequest) returns (ConsultaKeyPorClienteResponse) {}
+
 }
 
 enum TipoConta {
@@ -32,13 +34,10 @@ enum TipoKey {
 }
 
 message NovaKeyRequest {
-
-
   string uuidCliente = 1;
   TipoKey tipoKey = 2;
   string key = 3;
   TipoConta tipoConta = 4;
-
 }
 
 message NovaKeyResponse {
@@ -86,4 +85,21 @@ message ConsultaKeyResponse {
   string clienteId = 1;
   string pixId = 2;
   ChavePix chave = 3;
+}
+
+message ConsultaKeyPorClienteRequest {
+  string idCliente = 1;
+}
+
+message ConsultaKeyPorClienteResponse {
+
+  message KeyDescription {
+    string pixId = 1;
+    string clienteId = 2;
+    TipoKey tipoKey = 3;
+    TipoConta tipoConta = 4;
+    google.protobuf.Timestamp criadoEm = 5;
+  }
+
+  repeated KeyDescription keys = 1;
 }

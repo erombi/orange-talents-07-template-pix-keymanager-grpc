@@ -35,8 +35,7 @@ class ValidaClienteValidator(
                          context: ConstraintValidatorContext): Boolean {
 
             return value?.let { uuidCliente ->
-                client.pesquisaCliente(uuidCliente)
-                true
+               client.pesquisaCliente(uuidCliente) != null
             } ?: false
     }
 

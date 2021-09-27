@@ -205,6 +205,19 @@ internal class KeyServerTest(
     fun `deve retornar erro de conta nao encontrada`() {
         repository.deleteAll()
 
+        `when`(clientErpItau.pesquisaCliente("c56dfef4-7901-44fb-84e2-a2cefb157890"))
+            .thenReturn(
+                ClienteErpItauResponse(
+                    UUID.fromString("c56dfef4-7901-44fb-84e2-a2cefb157890"),
+                    "Leonardo Silva",
+                    "40764442058",
+                    InstituicaoErpItauResponse(
+                        "ITAÚ UNIBANCO S.A.",
+                        "60701190"
+                    )
+                )
+            )
+
         val error = assertThrows<StatusRuntimeException> {
             client.cadastrarKey(
                 NovaKeyRequest.newBuilder()
@@ -311,6 +324,19 @@ internal class KeyServerTest(
 
         val randomUUID = UUID.randomUUID()
 
+        `when`(clientErpItau.pesquisaCliente(randomUUID.toString()))
+            .thenReturn(
+                ClienteErpItauResponse(
+                    randomUUID,
+                    "Leonardo Silva",
+                    "40764442058",
+                    InstituicaoErpItauResponse(
+                        "ITAÚ UNIBANCO S.A.",
+                        "60701190"
+                    )
+                )
+            )
+
         `when`(clientErpItau.pesquisaContasPorCliente(TipoConta.CACC.toPorExtenso(), randomUUID.toString()))
             .thenThrow(
                 RuntimeException("Connection refused", HttpClientException("Connection refused"))
@@ -337,7 +363,7 @@ internal class KeyServerTest(
 
         val randomUUID = UUID.randomUUID()
 
-        `when`(clientErpItau.pesquisaContasPorCliente(TipoConta.CACC.toPorExtenso(), randomUUID.toString()))
+        `when`(clientErpItau.pesquisaCliente(randomUUID.toString()))
             .thenThrow(
                 RuntimeException("Connection refused")
             )

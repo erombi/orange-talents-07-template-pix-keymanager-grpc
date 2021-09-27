@@ -2,6 +2,7 @@ package br.com.zup.academy.erombi.model
 
 import br.com.zup.academy.erombi.TipoConta
 import br.com.zup.academy.erombi.TipoKey
+import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.Column
 import javax.persistence.Embedded
@@ -43,6 +44,8 @@ class Key(
 
     @Embedded
     val titular = titular
+
+    val criadoEm = LocalDateTime.now()
 
     init {
         id = UUID.randomUUID()

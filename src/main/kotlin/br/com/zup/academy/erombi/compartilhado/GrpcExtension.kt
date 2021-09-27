@@ -1,6 +1,6 @@
-package br.com.zup.academy.erombi
+package br.com.zup.academy.erombi.compartilhado
 
-import br.com.zup.academy.erombi.client.response.PixKeyDetailsResponse
+import br.com.zup.academy.erombi.ConsultaKeyRequest
 import br.com.zup.academy.erombi.server.dto.Filtro
 import javax.validation.ConstraintViolationException
 import javax.validation.Validator
